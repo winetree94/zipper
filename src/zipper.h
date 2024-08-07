@@ -5,11 +5,15 @@
 #ifndef ZIPPER_H
 #define ZIPPER_H
 
+#define EOCD_SIGNATURE = 0x06054b50;
+#define CDS_SIGNATURE = 0x02014b50;
+#define LFH_SIGNATURE = 0x04034b50;
+
 #include <stdio.h>
+#include <stdint.h>
 
 void printSomething();
 
-#include <stdint.h>
 
 #pragma pack(push, 1)  // 1바이트 경계로 패킹 설정
 

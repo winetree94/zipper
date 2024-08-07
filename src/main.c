@@ -38,11 +38,16 @@ int main(int argc, char *argv[])
         printf("%s 파일을 열었습니다.\n", args.filePath);
     }
 
-    fseek(file, -sizeof(EndOfCentralDirectoryRecord), SEEK_END);
-    EndOfCentralDirectoryRecord eocd;
-    fread(&eocd, sizeof(EndOfCentralDirectoryRecord), 1, file);
+    fseek(file, 0, SEEK_END);
+    // EndOfCentralDirectoryRecord eocd;
+    // fread(&eocd, sizeof(EndOfCentralDirectoryRecord), 1, file);
 
-    printf("eocd: %d \n", eocd.signature);
+    // printf("eocd: %x \n", eocd.signature);
+
+    // if (eocd.signature != 0x06054b50) {
+    //     printf("zip 파일이 아닙니다.");
+    //     exit(1);
+    // }
 
     // 파일 내용 읽기 (줄 단위로)
     // while (fgets(buffer, sizeof(buffer), file) != NULL) {
