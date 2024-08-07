@@ -1,10 +1,10 @@
-//
-// Created by winetree94 on 8/7/2024.
-//
-
 #ifndef ARG_H
-#define ARG_H 
+#define ARG_H
 
-#include <stdio.h>
+typedef struct {
+  char *filePath;
+} Arg;
 
-#endif //ARG_H
+Arg parseArgs(int argc, char *argv[]);
+
+#endif // ARG_H

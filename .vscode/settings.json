@@ -1,6 +1,15 @@
 {
   "files.associations": {
     "*.scss": "postcss",
-    "zipper.h": "c"
+    "zipper.h": "c",
+    "arg.h": "c",
+    "unistd.h": "c",
+    "string.h": "c",
+    "limits.h": "c"
+  },
+  "cmake.debugConfig": {
+    "args": [
+      "--file-path=../file.zip"
+    ]
   }
 }

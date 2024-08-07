@@ -1,5 +1,5 @@
 #include "zipper.h"
 
 void printSomething() {
-    printf("Hello, World!");
+    printf("Hello, World! \n");
 }

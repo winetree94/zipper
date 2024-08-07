@@ -8,4 +8,8 @@ add_executable(
         src/main.c
         src/zipper.c
         src/zipper.h
+        src/arg.c
+        src/arg.h
+        src/string.c
+        src/string.h
 )
