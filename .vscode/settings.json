@@ -5,7 +5,9 @@
     "arg.h": "c",
     "unistd.h": "c",
     "string.h": "c",
-    "limits.h": "c"
+    "limits.h": "c",
+    "stdint.h": "c",
+    "stdlib.h": "c"
   },
   "cmake.debugConfig": {
     "args": [

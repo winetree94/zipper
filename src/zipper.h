@@ -5,9 +5,12 @@
 #ifndef ZIPPER_H
 #define ZIPPER_H
 
-#define EOCD_SIGNATURE = 0x06054b50;
-#define CDS_SIGNATURE = 0x02014b50;
-#define LFH_SIGNATURE = 0x04034b50;
+// 현재 아키텍쳐(x86, x64)의 포인터의 사이즈
+#define POINTER_SIZE sizeof(void*)
+
+#define EOCD_SIGNATURE 0x06054b50
+#define CDS_SIGNATURE 0x02014b50
+#define LFH_SIGNATURE 0x04034b50
 
 #include <stdio.h>
 #include <stdint.h>
@@ -63,6 +66,24 @@ typedef struct {
     uint16_t comment_length;
 } EndOfCentralDirectoryRecord;
 
+typedef struct {
+    FILE *file;
+} Zip;
+
 #pragma pack(pop)  // 이전 패킹 설정 복원
+
+/**
+ * 지정된 경로의 zip 파일을 엽니다.
+ * 파일이 올바른 zip 형식이 아닌 경우 NULL 을 반환합니다.
+ */
+Zip *zip_open(char* path);
+
+void zip_read_eocd(Zip *, EndOfCentralDirectoryRecord *);
+
+void zip_read_eocd_comment(Zip *, char *, int);
+
+void zip_read_cdfh(CentralDirectoryFileHeader *, FILE *, int start, int size);
+
+void zip_close(Zip *zip);
 
 #endif //ZIPPER_H

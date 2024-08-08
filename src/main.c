@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <limits.h>
 #include "zipper.h"
@@ -6,16 +7,10 @@
 
 int main(int argc, char *argv[])
 {
-    // char *name = "hansol박한솔";
-
-    // printf("name: %s \n", name);
-    // printf("size of name: %ld \n", sizeof(name));
-    // printf("len of name: %ld \n", strlen(name));
-    // printf("name + 8: %s \n", name + 8);
-
     char cwd[PATH_MAX];
 
-    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+    {
         printf("현재 작업 디렉토리: %s \n", cwd);
     }
     else
@@ -27,34 +22,36 @@ int main(int argc, char *argv[])
 
     printf("file path: %s \n", args.filePath);
 
-    FILE *file;
+    Zip *zip = zip_open(args.filePath);
 
-    file = fopen(args.filePath, "rb");
-
-    if (file == NULL) {
-        perror("파일 열기 실패");
+    if (zip == NULL)
+    {
+        printf("파일 열기 실패");
         return 1;
-    } else {
-        printf("%s 파일을 열었습니다.\n", args.filePath);
     }
 
-    fseek(file, 0, SEEK_END);
-    // EndOfCentralDirectoryRecord eocd;
-    // fread(&eocd, sizeof(EndOfCentralDirectoryRecord), 1, file);
+    EndOfCentralDirectoryRecord eocd;
+    zip_read_eocd(zip, &eocd);
 
-    // printf("eocd: %x \n", eocd.signature);
+    if (eocd.signature != EOCD_SIGNATURE) {
+        printf("올바른 zip 파일이 아닙니다.");
+    }
 
-    // if (eocd.signature != 0x06054b50) {
-    //     printf("zip 파일이 아닙니다.");
-    //     exit(1);
-    // }
+    char *eocd_comment = malloc(eocd.comment_length + 1);
+    zip_read_eocd_comment(zip, eocd_comment, eocd.comment_length);
 
-    // 파일 내용 읽기 (줄 단위로)
-    // while (fgets(buffer, sizeof(buffer), file) != NULL) {
-    //     printf("%s", buffer);
-    // }
+    printf("eocd.signature: %x\n", eocd.signature);
+    printf("eocd.disk_number: %d\n", eocd.disk_number);
+    printf("eocd.central_directory_disk_number: %d\n", eocd.central_directory_disk_number);
+    printf("eocd.number_of_entries_on_this_disk: %d\n", eocd.number_of_entries_on_this_disk);
+    printf("eocd.total_number_of_entries: %d\n", eocd.total_number_of_entries);
+    printf("eocd.central_directory_size: %d\n", eocd.central_directory_size);
+    printf("eocd.central_directory_offset: %d\n", eocd.central_directory_offset);
+    printf("eocd.comment_length: %d\n", eocd.comment_length);
+    printf("eocd.comment: %s\n", eocd_comment);
 
-    fclose(file);
+    zip_close(zip);
+    free(eocd_comment);
 
     return 0;
 }
