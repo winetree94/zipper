@@ -1,11 +1,6 @@
 #include <stdlib.h>
 #include "zipper.h"
 
-void printSomething()
-{
-    printf("Hello, World! \n");
-}
-
 Zip *zip_open(char *path)
 {
     Zip *zip = malloc(sizeof(Zip));
@@ -33,12 +28,10 @@ void zip_read_eocd(
     Zip *zip,
     EndOfCentralDirectoryRecord *eocd)
 {
-    int eocd_min_size = sizeof(EndOfCentralDirectoryRecord);
-
     fseek(zip->file, 0, SEEK_END);
     int file_size = ftell(zip->file);
 
-    for (int i = eocd_min_size; i <= file_size; i++)
+    for (int i = EOCD_MIN_SIZE; i <= file_size; i++)
     {
         uint32_t signature;
         fseek(zip->file, -i, SEEK_END);
@@ -48,11 +41,10 @@ void zip_read_eocd(
             continue;
         }
         fseek(zip->file, -i, SEEK_END);
-        fread(eocd, eocd_min_size, 1, zip->file);
-        // 동적 메모리 할당을 여기서 해버리면 쓰는 곳에서 힘들다.
-        // eocd.comment = malloc(eocd.comment_length + 1);
-        // fread(eocd.comment, eocd.comment_length, 1, file);
-        // eocd.comment[eocd.comment_length] = '\0';
+        fread(eocd, EOCD_MIN_SIZE, 1, zip->file);
+
+        eocd->start = i;
+        eocd->end = i + EOCD_MIN_SIZE + eocd->comment_length;
         break;
     }
 }
@@ -60,11 +52,11 @@ void zip_read_eocd(
 void zip_read_eocd_comment(
     Zip *zip,
     char *result,
-    int comment_length)
+    EndOfCentralDirectoryRecord *record)
 {
-    fseek(zip->file, -comment_length, SEEK_END);
-    fread(result, comment_length, 1, zip->file);
-    result[comment_length] = '\0';
+    fseek(zip->file, -record->comment_length, SEEK_END);
+    fread(result, record->comment_length, 1, zip->file);
+    result[record->comment_length] = '\0';
 }
 
 void zip_read_cdfh(
@@ -73,6 +65,60 @@ void zip_read_cdfh(
     int start,
     int size)
 {
+    int index = 0;
+
     fseek(zip->file, start, SEEK_SET);
-    fread(result, size, 1, zip->file);
+    while (ftell(zip->file) < (start + size))
+    {
+        uint32_t signature;
+        fread(&signature, sizeof(uint32_t), 1, zip->file);
+        if (signature != CDFH_SIGNATURE)
+        {
+            // signature 찾지 못한 경우 1바이트씩 건너뛸 수 있게
+            fseek(zip->file, -3, SEEK_CUR);
+            continue;
+        }
+        fseek(zip->file, -sizeof(uint32_t), SEEK_CUR);
+        fread(result + index, CDFH_MIN_SIZE, 1, zip->file);
+        (result + index)->start = ftell(zip->file) - CDFH_MIN_SIZE;
+        (result + index)->end = ftell(zip->file);
+        index++;
+    }
+}
+
+void zip_read_cdfh_file_name(
+    Zip *zip,
+    char *result,
+    CentralDirectoryFileHeader *header)
+{
+    fseek(zip->file, header->end, SEEK_SET);
+    fread(result, header->filename_length, 1, zip->file);
+    result[header->filename_length] = '\0';
+}
+
+void zip_read_cdfh_extra(
+    Zip *zip,
+    char *result,
+    CentralDirectoryFileHeader *header)
+{
+    fseek(zip->file, header->end + header->filename_length, SEEK_SET);
+    fread(result, header->extra_field_length, 1, zip->file);
+    result[header->extra_field_length] = '\0';
+}
+
+void zip_read_cdfh_comment(
+    Zip *zip,
+    char *result,
+    CentralDirectoryFileHeader *header)
+{
+    fseek(
+        zip->file,
+        header->end + header->filename_length + header->extra_field_length,
+        SEEK_SET);
+    fread(
+        result,
+        header->file_comment_length,
+        1,
+        zip->file);
+    result[header->file_comment_length] = '\0';
 }
