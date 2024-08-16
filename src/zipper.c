@@ -12,7 +12,8 @@ Zip *zip_open(char *path)
     zip->file = fopen(path, "rb");
     if (zip->file == NULL)
     {
-        printf("Memory allocation failed\n");
+        printf("Failed to open file: %s\n", path);
+        free(zip);
         return NULL;
     }
     return zip;

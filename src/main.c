@@ -1,13 +1,12 @@
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <limits.h>
 #include "zipper.h"
 #include "arg.h"
 
 int main(int argc, char *argv[])
 {
-    char cwd[PATH_MAX];
+    char cwd[10000];
 
     if (getcwd(cwd, sizeof(cwd)) != NULL)
     {

@@ -10,8 +10,9 @@
     "stdlib.h": "c"
   },
   "cmake.debugConfig": {
+    "cwd": "${workspaceFolder}",
     "args": [
-      "--file-path=../file.zip"
+      "--file-path=../../../../file.zip"
     ]
   }
 }
